@@ -84,7 +84,7 @@ bindOptional f fa = case fa of
   -> Optional a
   -> Optional a
 (<+>) fa ga = case fa of
-  (Full x) -> fa
+  (Full _) -> fa
   Empty    -> ga
 
 -- | Replaces the Full and Empty constructors in an optional.
