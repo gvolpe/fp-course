@@ -241,9 +241,10 @@ flattenAgain = flatMap P.id
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional Nil            = Full Nil
-seqOptional (Empty :. _)   = Empty
-seqOptional (Full x :. xs) = mapOptional (\y -> x :. y) (seqOptional xs)
+seqOptional Nil        = Full Nil
+seqOptional (fa :. xs) = bindOptional (\a -> mapOptional (\b -> a :. b) (seqOptional xs)) fa
+--seqOptional (Empty :. _)   = Empty
+--seqOptional (Full x :. xs) = mapOptional (\y -> x :. y) (seqOptional xs)
 
 -- | Find the first element in the list matching the predicate.
 --
