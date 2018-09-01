@@ -38,8 +38,8 @@ exec ::
   State s a
   -> s
   -> s
-exec =
-  error "todo: Course.State#exec"
+exec fa s = snd $ runState fa s
+-- exec (State f) s = snd $ f s
 
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 --
@@ -48,8 +48,8 @@ eval ::
   State s a
   -> s
   -> a
-eval =
-  error "todo: Course.State#eval"
+eval fa s = fst $ runState fa s
+-- eval (State f) s = fst $ f s
 
 -- | A `State` where the state also distributes into the produced value.
 --
@@ -57,8 +57,7 @@ eval =
 -- (0,0)
 get ::
   State s s
-get =
-  error "todo: Course.State#get"
+get = State (\s -> (s, s))
 
 -- | A `State` where the resulting state is seeded with the given value.
 --
@@ -67,8 +66,7 @@ get =
 put ::
   s
   -> State s ()
-put =
-  error "todo: Course.State#put"
+put s = State (\_ -> ((), s))
 
 -- | Implement the `Functor` instance for `State s`.
 --
@@ -79,8 +77,8 @@ instance Functor (State s) where
     (a -> b)
     -> State s a
     -> State s b
-  (<$>) =
-    error "todo: Course.State#(<$>)"
+  (<$>) f fa = State (\s-> let x = runState fa s in (f $ fst x, snd x))
+--  (<$>) f fa = State (\s -> (f $ eval fa s, exec fa s))
 
 -- | Implement the `Applicative` instance for `State s`.
 --
@@ -97,14 +95,14 @@ instance Applicative (State s) where
   pure ::
     a
     -> State s a
-  pure =
-    error "todo: Course.State pure#instance (State s)"
+  pure a = State (\s -> (a, s))
   (<*>) ::
     State s (a -> b)
     -> State s a
-    -> State s b 
-  (<*>) =
-    error "todo: Course.State (<*>)#instance (State s)"
+    -> State s b
+  (<*>) ff fa = State (\s -> let f = runState ff s
+                                 x = runState fa $ snd f
+                             in (fst f $ fst x, snd x))
 
 -- | Implement the `Bind` instance for `State s`.
 --
@@ -118,8 +116,8 @@ instance Monad (State s) where
     (a -> State s b)
     -> State s a
     -> State s b
-  (=<<) =
-    error "todo: Course.State (=<<)#instance (State s)"
+  (=<<) f fa = State (\s -> let x = runState fa s
+                            in runState (f $ fst x) (snd x))
 
 -- | Find the first element in a `List` that satisfies a given predicate.
 -- It is possible that no element is found, hence an `Optional` result.
