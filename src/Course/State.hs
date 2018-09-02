@@ -138,8 +138,12 @@ findM ::
   (a -> f Bool)
   -> List a
   -> f (Optional a)
-findM =
-  error "todo: Course.State#findM"
+findM _ Nil       = pure Empty
+findM f (x :. xs) = (\b -> if b then pure (Full x) else findM f xs) =<< f x
+-- findM f list = headOption <$> filtering f list where
+--                 headOption :: List a -> Optional a
+--                 headOption Nil      = Empty
+--                 headOption (x :. _) = Full x
 
 -- | Find the first element in a `List` that repeats.
 -- It is possible that no element repeats, hence an `Optional` result.
@@ -152,8 +156,7 @@ firstRepeat ::
   Ord a =>
   List a
   -> Optional a
-firstRepeat =
-  error "todo: Course.State#firstRepeat"
+firstRepeat _ = Empty
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
